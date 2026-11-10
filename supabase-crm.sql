@@ -22,6 +22,22 @@
 -- ============================================================
 
 -- =============================================================
+-- 0. SAFETY CHECK -- stop if this project already has unrelated
+--    tables with the same names (e.g. another app's "staff").
+-- =============================================================
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='staff')
+     AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='staff' AND column_name='name') THEN
+    RAISE EXCEPTION 'This project already has a different "staff" table. Use a new, empty Supabase project for the Glio CRM.';
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='clients')
+     AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='clients' AND column_name='checklist') THEN
+    RAISE EXCEPTION 'This project already has a different "clients" table. Use a new, empty Supabase project for the Glio CRM.';
+  END IF;
+END $$;
+
+-- =============================================================
 -- 1. STAFF + ROLE HELPERS
 -- =============================================================
 CREATE TABLE IF NOT EXISTS public.staff (

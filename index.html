@@ -268,12 +268,12 @@ textarea { resize: vertical; min-height: 64px }
    supabase-crm.sql. The publishable key below is safe in client
    source ONLY because every table enforces RLS.
    ============================================================ */
-const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_URL = 'https://pfgvmrxtbyidftmsbdkn.supabase.co';
 const SUPABASE_KEY = 'YOUR-PUBLISHABLE-KEY';
 
 const sb = (() => {
   try {
-    if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SUPABASE_URL) || SUPABASE_URL.includes('YOUR-PROJECT')) return null;
+    if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SUPABASE_URL) || SUPABASE_KEY.startsWith('YOUR-')) return null;
     return window.supabase?.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } }) || null;
   } catch (e) { console.error('Supabase init failed:', e); return null; }
 })();
