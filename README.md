@@ -23,9 +23,9 @@ The CRM never stores passwords: the database itself refuses text like `password:
 1. **Supabase project.** Create a free project at supabase.com.
 2. **Database.** Open *SQL Editor*, paste the whole of `supabase-crm.sql`, run it, then run the diagnostic at the bottom of the file. Expect `tables_ok = 4`, `policy_count = 12`, `password_guard = true`, `realtime_tables = 3`.
 3. **Keys.** In *Project Settings → API*, copy the **Project URL** and the **publishable (anon) key** into `SUPABASE_URL` and `SUPABASE_KEY` near the top of the script in `index.html`. Never use the `service_role` / secret key here.
-4. **Auth URLs.** In *Authentication → URL Configuration*, set **Site URL** to the CRM's address (e.g. `https://crm.example.com`) and add the same address under **Redirect URLs**.
+4. **Auth URLs.** In *Authentication → URL Configuration*, set **Site URL** to the CRM's address (e.g. `https://crm.bashari.tech`) and add the same address under **Redirect URLs**.
 5. **GitHub Pages.** Repository *Settings → Pages*: deploy from branch `main`, folder `/ (root)`.
-6. **Domain.** Put the subdomain in a `CNAME` file in the repo root (one line, e.g. `crm.example.com`), and at your DNS provider add a **CNAME** record for that subdomain pointing to `<github-username>.github.io`. Then tick **Enforce HTTPS** in *Settings → Pages* once it's available.
+6. **Domain.** Put the subdomain in a `CNAME` file in the repo root (one line: `crm.bashari.tech`), and at your DNS provider add a **CNAME** record for that subdomain pointing to `<github-username>.github.io`. Then tick **Enforce HTTPS** in *Settings → Pages* once it's available.
 7. **First login.** Open the site, choose **Create account**, and sign up yourself first. You become the admin. Then add your teammates on the **Team** page.
 
 ## Making changes
