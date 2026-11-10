@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; object-src 'none'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'self';" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Glio Clients</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" crossorigin="anonymous"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+
+/* Layout: agent command bar on top, client roster as the main column, client file slides in as a side panel (full screen on phones). */
+:root {
+  --bg: #F1F4F3; --surface: #FFFFFF; --sunk: #E8EDEB; --ink: #13201C; --muted: #5A6A65; --line: #D9E1DE;
+  --accent: #0B6E5F; --accent-ink: #FFFFFF; --accent-soft: #DCEEE9;
+  --s-lead: #2F5FD0; --s-onb: #A86A12; --s-act: #1E8549; --s-pau: #6F767E; --s-past: #A04545;
+  --danger: #B03A3A; --shadow: 0 1px 2px rgba(19,32,28,.06), 0 8px 24px rgba(19,32,28,.08);
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0D1412; --surface: #141D1A; --sunk: #1A2522; --ink: #E4EDEA; --muted: #92A29D; --line: #25322E;
+  --accent: #3CC2A5; --accent-ink: #052019; --accent-soft: #143A32;
+  --s-lead: #7C9DF0; --s-onb: #E0A84A; --s-act: #4FCB82; --s-pau: #9AA1A8; --s-past: #E07D7D;
+  --danger: #E57373; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0D1412; --surface: #141D1A; --sunk: #1A2522; --ink: #E4EDEA; --muted: #92A29D; --line: #25322E;
+  --accent: #3CC2A5; --accent-ink: #052019; --accent-soft: #143A32;
+  --s-lead: #7C9DF0; --s-onb: #E0A84A; --s-act: #4FCB82; --s-pau: #9AA1A8; --s-past: #E07D7D;
+  --danger: #E57373; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
+button, input, select, textarea { font: inherit; color: inherit }
+a { color: var(--accent) }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; display: flex; flex-direction: column; gap: 20px }
+
+/* Top bar */
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap }
+.brand { font: 700 28px/1 var(--f-display); letter-spacing: -.02em; display: flex; align-items: baseline; gap: 10px }
+.brand i { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); display: inline-block; margin-left: 2px }
+.brand small { font: 500 13px var(--f-body); color: var(--muted); letter-spacing: 0 }
+.top .spacer { flex: 1 }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 14px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap }
+.btn:hover { border-color: var(--muted) }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.btn.primary:hover { filter: brightness(1.08) }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted) }
+.btn.ghost:hover { color: var(--ink); background: var(--sunk) }
+.btn.danger { color: var(--danger) }
+.btn.small { padding: 5px 10px; font-size: 13px; border-radius: 8px }
+.btn:disabled { opacity: .5; cursor: default }
+
+/* Agent */
+.agent { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 10px; position: relative }
+.agent-row { display: flex; gap: 10px; align-items: center }
+.agent-mark { width: 34px; height: 34px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; flex: none; font: 700 15px var(--f-display) }
+.agent-input { flex: 1; min-width: 0; border: 0; background: transparent; font-size: 17px; padding: 6px 2px; outline: none }
+.agent-input::placeholder { color: var(--muted) }
+.agent-hint { font-size: 12.5px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap }
+.agent-hint button { border: 0; background: var(--sunk); border-radius: 999px; padding: 2px 10px; cursor: pointer; font-size: 12.5px; color: var(--muted) }
+.agent-hint button:hover { color: var(--ink) }
+kbd { font: 500 11px var(--f-mono); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; background: var(--bg) }
+.mentions { position: absolute; left: 58px; top: 54px; z-index: 30; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); min-width: 260px; max-width: calc(100% - 72px); padding: 4px; }
+.mentions button { display: flex; width: 100%; text-align: left; gap: 10px; align-items: center; border: 0; background: transparent; padding: 7px 10px; border-radius: 8px; cursor: pointer }
+.mentions button[aria-selected="true"], .mentions button:hover { background: var(--accent-soft) }
+.mentions .sub { color: var(--muted); font-size: 12.5px; margin-left: auto }
+.thread { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; border-top: 1px solid var(--line); padding-top: 10px }
+.msg { max-width: 760px; font-size: 14.5px; white-space: pre-wrap; overflow-wrap: anywhere }
+.msg.user { align-self: flex-end; background: var(--sunk); padding: 7px 12px; border-radius: 12px 12px 4px 12px }
+.msg.bot { padding: 2px 4px; }
+.msg.bot.pending { color: var(--muted) }
+.msg .open-chip { margin-top: 6px }
+.msg.err { color: var(--danger) }
+.thread-tools { display: flex; justify-content: flex-end; gap: 6px }
+
+/* Summary */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px }
+.stat b { display: block; font: 700 24px/1.15 var(--f-display); font-variant-numeric: tabular-nums }
+.stat span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em }
+@media (max-width: 640px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+
+/* Toolbar */
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center }
+.search { flex: 1 1 220px; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 12px }
+.chips { display: flex; gap: 6px; flex-wrap: wrap }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 12px; cursor: pointer; font-size: 13px; font-weight: 500 }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink) }
+.chip .n { font-family: var(--f-mono); font-size: 11px; opacity: .7; margin-left: 4px }
+
+/* Main area */
+.main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start }
+.main.has-panel { grid-template-columns: minmax(0, 1fr) minmax(0, 440px) }
+.roster { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; min-width: 0 }
+.row { display: grid; grid-template-columns: minmax(0, 2.2fr) 120px minmax(0, 1.6fr) 110px 110px; gap: 12px; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--line); cursor: pointer; text-align: left; width: 100%; background: transparent; border-left: 0; border-right: 0; border-top: 0 }
+.row:last-child { border-bottom: 0 }
+.row:hover { background: var(--sunk) }
+.row.sel { background: var(--accent-soft) }
+.row.head { cursor: default; background: var(--bg); font-size: 11.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding-block: 8px }
+.row.head:hover { background: var(--bg) }
+.cname { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.csub { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.num { font-family: var(--f-mono); font-size: 13px; font-variant-numeric: tabular-nums }
+.svc { display: flex; gap: 4px; flex-wrap: wrap; min-width: 0 }
+.tag { font-size: 11.5px; background: var(--sunk); border-radius: 6px; padding: 1px 7px; white-space: nowrap }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; white-space: nowrap; color: var(--c) }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c) }
+.due { color: var(--s-onb); font-weight: 600 }
+.overdue { color: var(--danger); font-weight: 600 }
+@media (max-width: 860px) {
+  .row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px }
+  .row.head { display: none }
+  .row .c-svc, .row .c-ret { display: none }
+  .row .c-ren { grid-column: 2; text-align: right }
+}
+.empty { padding: 48px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--muted) }
+.empty h3 { font: 700 20px var(--f-display); color: var(--ink); margin: 0 }
+.empty p { margin: 0; max-width: 46ch }
+
+/* Client file panel */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow-y: auto; min-width: 0 }
+.p-head { padding: 18px 18px 14px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; position: sticky; top: 0; background: var(--surface); z-index: 2 }
+.p-title { display: flex; align-items: flex-start; gap: 8px }
+.p-title h2 { font: 700 24px/1.15 var(--f-display); letter-spacing: -.01em; margin: 0; flex: 1; text-wrap: balance; overflow-wrap: anywhere }
+.p-actions { display: flex; gap: 6px; flex-wrap: wrap }
+.sec { padding: 14px 18px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px }
+.sec:last-child { border-bottom: 0 }
+.sec h4 { margin: 0; font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted) }
+.kv { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 6px 12px; font-size: 14px }
+.kv dt { color: var(--muted) }
+.kv dd { margin: 0; overflow-wrap: anywhere; display: flex; gap: 6px; align-items: center; flex-wrap: wrap }
+.copy { border: 0; background: var(--sunk); border-radius: 6px; font-size: 11.5px; padding: 1px 7px; cursor: pointer; color: var(--muted) }
+.copy:hover { color: var(--ink) }
+.notes { white-space: pre-wrap; font-size: 14px; overflow-wrap: anywhere }
+.muted { color: var(--muted) }
+.log { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none }
+.log li { border-left: 2px solid var(--line); padding-left: 10px; font-size: 14px }
+.log li.sys { color: var(--muted); font-size: 13px }
+.log .meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center }
+.log .meta button { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 12px; padding: 0; text-decoration: underline }
+.log .txt { white-space: pre-wrap; overflow-wrap: anywhere }
+.note-box { display: flex; flex-direction: column; gap: 6px }
+textarea, .field input, .field select { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 9px; padding: 8px 10px }
+textarea { resize: vertical; min-height: 64px }
+.confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px }
+@media (max-width: 900px) {
+  .main.has-panel { grid-template-columns: minmax(0, 1fr) }
+  .panel { position: fixed; inset: 0; border-radius: 0; max-height: none; z-index: 40; border: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px) }
+  .p-head { top: 0 }
+}
+
+/* Form overlay */
+.overlay { position: fixed; inset: 0; background: rgba(8,14,12,.45); z-index: 50; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; padding: max(24px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) 24px max(12px, env(safe-area-inset-left, 0px)) }
+.form { background: var(--surface); border-radius: 16px; width: 100%; max-width: 720px; box-shadow: var(--shadow); display: flex; flex-direction: column }
+.form header { padding: 18px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px }
+.form header h3 { margin: 0; font: 700 20px var(--f-display); flex: 1 }
+.fgrid { padding: 16px 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0 }
+.field.full { grid-column: 1 / -1 }
+.field label, .field .lbl { font-size: 12.5px; font-weight: 600; color: var(--muted) }
+.svc-pick { display: flex; gap: 6px; flex-wrap: wrap }
+.svc-pick label { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; font-size: 13px; cursor: pointer; color: var(--ink); font-weight: 500 }
+.svc-pick input { accent-color: var(--accent); margin: 0 }
+.svc-pick label:has(input:checked) { background: var(--accent-soft); border-color: var(--accent) }
+.form footer { padding: 14px 20px; border-top: 1px solid var(--line); display: flex; gap: 8px; justify-content: flex-end; align-items: center; flex-wrap: wrap }
+.form footer .err { color: var(--danger); font-size: 13px; margin-right: auto }
+@media (max-width: 560px) { .fgrid { grid-template-columns: minmax(0, 1fr) } }
+
+.safety { grid-column: 1 / -1; display: flex; gap: 10px; align-items: flex-start; background: var(--sunk); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13.5px }
+.safety b { color: var(--s-onb) }
+.trash-note { background: var(--sunk); border-radius: 10px; padding: 10px 12px; font-size: 14px; display: flex; flex-direction: column; gap: 8px }
+.check { display: flex; flex-direction: column; gap: 12px }
+.check-group h5 { margin: 0 0 4px; font-size: 12.5px; color: var(--muted); font-weight: 600 }
+.check-item { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 14px }
+.check-item input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; flex: none }
+.check-item label { flex: 1; min-width: 0; cursor: pointer }
+.check-item.na label { text-decoration: line-through; color: var(--muted) }
+.check-item .skip { border: 0; background: none; color: var(--muted); font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0 }
+.check-item .done-mark { color: var(--muted); font-size: 12px }
+.progress { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted) }
+.bar { flex: 1; height: 6px; border-radius: 99px; background: var(--sunk); overflow: hidden }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px }
+.setup { font: 500 11.5px var(--f-mono); color: var(--muted); margin-top: 2px }
+.ktag { font-size: 11px; font-weight: 600; border-radius: 5px; padding: 0 6px; background: var(--accent-soft); color: var(--accent) }
+.log-tools { display: flex; gap: 6px; flex-wrap: wrap; align-items: center }
+.note-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
+.note-row select, .person { border: 1px solid var(--line); background: var(--surface); border-radius: 9px; padding: 6px 10px }
+.fsec { grid-column: 1 / -1; font: 700 15px var(--f-display); margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--line) }
+.foryou { background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px }
+.foryou h3 { margin: 0; font: 700 18px var(--f-display) }
+.foryou .fy-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap }
+.foryou .fy-list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none }
+.foryou .fy-list li { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--surface); border-radius: 10px; padding: 8px 12px }
+.foryou .fy-list li b { flex: 1; min-width: 0; overflow-wrap: anywhere }
+.foryou .muted { font-size: 13.5px }
+.foryou input, .foryou select { border: 1px solid var(--line); background: var(--surface); border-radius: 9px; padding: 6px 10px; min-width: 0 }
+.role { font-size: 11.5px; font-weight: 600; border-radius: 6px; padding: 1px 8px; background: var(--sunk); color: var(--ink) }
+.newb { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-ink); background: var(--accent); border-radius: 5px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px }
+.linkish { border: 0; background: none; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 13px; padding: 0 }
+.access-list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none }
+.access-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; font-size: 14px; padding-bottom: 8px; border-bottom: 1px dashed var(--line) }
+.access-list li:last-child { border-bottom: 0; padding-bottom: 0 }
+.access-list .where { grid-column: 1 / -1; color: var(--muted); font-size: 13px; overflow-wrap: anywhere }
+.access-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px; align-items: center }
+.access-row .lbl { font-size: 13px; color: var(--ink); font-weight: 500 }
+.access-row select, .access-row input { width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 9px; padding: 7px 9px; min-width: 0 }
+@media (max-width: 560px) { .access-row { grid-template-columns: minmax(0, 1fr) } }
+.banner { background: var(--sunk); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: var(--muted) }
+.toast { position: fixed; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 10px; font-size: 14px; z-index: 60; box-shadow: var(--shadow) }
+@media (prefers-reduced-motion: no-preference) {
+  .panel { animation: slide .18s ease-out }
+  @keyframes slide { from { transform: translateX(12px); opacity: .6 } to { transform: none; opacity: 1 } }
+}
+
+
+/* ---- hosted app additions ---- */
+.small { font-size: 13px }
+.nav { display: flex; gap: 4px }
+.nav a { text-decoration: none; color: var(--muted); font-weight: 600; padding: 6px 12px; border-radius: 9px }
+.nav a.on, .nav a:hover { color: var(--ink); background: var(--sunk) }
+.who { display: flex; align-items: center; gap: 8px; font-size: 13.5px; flex-wrap: wrap }
+.who .role { font-size: 11px }
+.agent-hint button.on { background: var(--accent); color: var(--accent-ink) }
+.center-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px }
+.card-box { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 28px; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 14px }
+.card-box h2 { margin: 0; font: 700 22px var(--f-display) }
+.card-box p { margin: 0 }
+.auth-form { display: flex; flex-direction: column; gap: 12px }
+.auth-form .btn.primary { justify-content: center; padding-block: 10px }
+.auth-links { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap }
+.auth-msg { margin: 0; font-size: 14px; border-radius: 9px; padding: 9px 12px }
+.auth-msg.err { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger) }
+.auth-msg.ok { background: var(--accent-soft); color: var(--accent) }
+.team { display: flex; flex-direction: column; gap: 14px }
+.team-head h2 { margin: 0 0 4px; font: 700 24px var(--f-display) }
+.team-head p { margin: 0; max-width: 70ch }
+.team-add { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 150px auto; gap: 10px; align-items: end; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px }
+.team-row { display: grid; grid-template-columns: minmax(0, 1fr) 150px 130px 120px; gap: 12px; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--line) }
+.team-row:last-child { border-bottom: 0 }
+.team-row.inactive { opacity: .55 }
+.team-row select { border: 1px solid var(--line); background: var(--bg); border-radius: 9px; padding: 6px 8px; width: 100% }
+@media (max-width: 760px) {
+  .team-add { grid-template-columns: minmax(0, 1fr) }
+  .team-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) }
+}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="overlay" id="overlay" hidden></div>
+<div class="toast" id="toast" hidden role="status"></div>
+<script>
+/* ============================================================
+   GLIO CRM — single-file app (plain JS, no build step)
+   Backend: Supabase (Auth + Postgres). Schema + RLS live in
+   supabase-crm.sql. The publishable key below is safe in client
+   source ONLY because every table enforces RLS.
+   ============================================================ */
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_KEY = 'YOUR-PUBLISHABLE-KEY';
+
+const sb = (() => {
+  try {
+    if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SUPABASE_URL) || SUPABASE_URL.includes('YOUR-PROJECT')) return null;
+    return window.supabase?.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } }) || null;
+  } catch (e) { console.error('Supabase init failed:', e); return null; }
+})();
+
+/* -------------------- CONSTANTS -------------------- */
+const CURRENCY = 'SAR';
+const STATUSES = [
+  { key: 'lead', label: 'Lead', c: '--s-lead' },
+  { key: 'onboarding', label: 'Onboarding', c: '--s-onb' },
+  { key: 'active', label: 'Active', c: '--s-act' },
+  { key: 'paused', label: 'Paused', c: '--s-pau' },
+  { key: 'past', label: 'Past client', c: '--s-past' },
+];
+const ST = Object.fromEntries(STATUSES.map(s => [s.key, s]));
+const SERVICES = ['Social media', 'Paid ads', 'SEO', 'Content', 'Branding', 'Website', 'Tracking setup', 'Influencers'];
+const AD_PLATFORMS = ['Google Ads', 'TikTok Ads', 'Instagram Ads'];
+const STORE_PLATFORMS = ['Zid', 'Salla', 'Shopify', 'Custom website', 'No website', 'Other'];
+const CHECK = [
+  { k: 'ga4', g: 'Google', l: 'GA4 property and tracking' },
+  { k: 'gtm', g: 'Google', l: 'Google Tag Manager' },
+  { k: 'gads', g: 'Google', l: 'Google Ads account and conversions' },
+  { k: 'gsc', g: 'Google', l: 'Search Console' },
+  { k: 'gmc', g: 'Google', l: 'Merchant Center' },
+  { k: 'gbp', g: 'Google', l: 'Business Profile' },
+  { k: 'metabm', g: 'Instagram (Meta)', l: 'Meta Business Manager access' },
+  { k: 'igacc', g: 'Instagram (Meta)', l: 'Instagram account linked' },
+  { k: 'metapx', g: 'Instagram (Meta)', l: 'Meta pixel and conversions API' },
+  { k: 'ttbc', g: 'TikTok', l: 'TikTok Business Center access' },
+  { k: 'ttads', g: 'TikTok', l: 'TikTok Ads account' },
+  { k: 'ttpx', g: 'TikTok', l: 'TikTok pixel and events' },
+  { k: 'approve', g: 'Client', l: 'Approvals and brand assets received' },
+];
+const LOG_KINDS = { note: 'General', onboarding: 'Onboarding', ads: 'Ads' };
+const ACCESS = [
+  { k: 'google', l: 'Google (Ads, GA4, Tag Manager, Search Console)' },
+  { k: 'meta', l: 'Instagram / Meta Business' },
+  { k: 'tiktok', l: 'TikTok Business Center' },
+  { k: 'store', l: 'Store admin (Zid, Salla, Shopify)' },
+  { k: 'site', l: 'Website, domain and hosting' },
+  { k: 'other', l: 'Other' },
+];
+const ACCESS_METHODS = [
+  { k: 'partner', l: 'Partner / agency access', c: '--s-act' },
+  { k: 'user', l: 'Added as a user', c: '--s-act' },
+  { k: 'vault', l: 'Login in password manager', c: '--s-act' },
+  { k: 'client', l: 'Client handles it', c: '--s-pau' },
+  { k: 'pending', l: 'Requested, waiting', c: '--s-onb' },
+  { k: 'none', l: 'No access yet', c: '--s-past' },
+];
+const AM = Object.fromEntries(ACCESS_METHODS.map(m => [m.k, m]));
+const ROLE_FIELDS = { managerId: ['manager_id', 'Account lead'], onboardingOwnerId: ['onboarding_owner_id', 'Onboarding'], adsOwnerId: ['ads_owner_id', 'Ads'] };
+const STAFF_ROLES = { admin: 'Admin', member: 'Member', viewer: 'Viewer' };
+// Mirrors public.looks_like_password() in supabase-crm.sql.
+const PW_RE = /(password|passwd|passcode|\bpass\b|\bpwd\b|\bpw\b|كلمة\s*(المرور|السر)|الباسورد|باسورد)\s*[:=：]/i;
+
+/* -------------------- STATE -------------------- */
+const emptyState = () => ({ userId: null, email: '', me: null, staff: [], clients: new Map(), seen: {}, notes: [], notesFor: null, loaded: false });
+let state = emptyState();
+const emptyUi = () => ({ filter: 'all', smart: '', person: '', q: '', openId: null, confirmDel: false, logKind: 'all', noteKind: 'note' });
+let ui = emptyUi();
+let authMode = 'login';         // login | signup | forgot | recovery
+let realtime = null;
+let mentionState = { items: [], sel: 0, start: -1 };
+
+/* -------------------- HELPERS -------------------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const norm = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
+const today = () => new Date().toISOString().slice(0, 10);
+const money = n => (Number(n) || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
+const daysUntil = d => d ? Math.round((new Date(d + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 86400000) : null;
+const daysSince = iso => iso ? Math.floor((Date.now() - new Date(iso)) / 86400000) : 9999;
+const fmtDate = d => d ? new Date(d.length <= 10 ? d + 'T00:00:00' : d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+function ago(iso) {
+  if (!iso) return '';
+  const m = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (m < 1) return 'just now'; if (m < 60) return m + 'm ago';
+  const h = Math.round(m / 60); if (h < 24) return h + 'h ago';
+  const d = Math.round(h / 24); if (d < 30) return d + 'd ago';
+  return fmtDate(iso.slice(0, 10));
+}
+function safeUrl(u) { if (!u) return ''; let s = String(u).trim(); if (!/^https?:\/\//i.test(s)) s = 'https://' + s; try { const x = new URL(s); return /^https?:$/.test(x.protocol) ? x.href : ''; } catch { return ''; } }
+function igUrl(h) { if (!h) return ''; const s = String(h).trim(); if (/^https?:\/\//i.test(s)) return safeUrl(s); return 'https://instagram.com/' + encodeURIComponent(s.replace(/^@/, '')); }
+const pill = k => { const s = ST[k] || ST.lead; return `<span class="pill" style="--c: var(${s.c})">${esc(s.label)}</span>`; };
+function toast(t) { const el = $('toast'); if (!el) return; el.textContent = t; el.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => el.hidden = true, Math.max(2400, t.length * 55)); }
+function banner(t) { const el = $('banner'); if (el) { el.textContent = t || ''; el.hidden = !t; } }
+const isAdmin = () => state.me?.role === 'admin' && state.me?.active;
+const canWrite = () => (state.me?.role === 'admin' || state.me?.role === 'member') && state.me?.active;
+const staffById = id => state.staff.find(s => s.id === id) || null;
+const staffName = id => staffById(id)?.name || staffById(id)?.email || '';
+const assignable = () => state.staff.filter(s => s.active && s.role !== 'viewer').sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email));
+function friendlyError(e) {
+  const m = String(e?.message || e || '');
+  if (/no_passwords/.test(m)) return "That looks like a password. Save it in your password manager and write where it's kept instead.";
+  if (/only admins/.test(m)) return 'Only admins can delete or restore clients.';
+  if (/row-level security|permission denied/i.test(m)) return "You don't have permission to do that. Ask an admin to check your role.";
+  if (/own role/.test(m)) return "You can't change your own role. Ask another admin.";
+  if (/deactivate yourself/.test(m)) return "You can't deactivate your own account.";
+  if (/duplicate key.*email/i.test(m)) return 'That email is already on the team.';
+  if (/Failed to fetch|NetworkError/i.test(m)) return "Couldn't reach the server. Check your connection and try again.";
+  return m || 'Something went wrong. Try again.';
+}
+
+/* -------------------- DB <-> JS MAPPING -------------------- */
+const dateOnly = v => v ? String(v instanceof Date ? v.toISOString() : v).slice(0, 10) : '';
+function mapStaffFromDb(r) { return { id: r.id, userId: r.user_id, email: r.email, name: r.name || '', role: r.role, active: !!r.active, createdAt: r.created_at }; }
+function mapClientFromDb(r) {
+  return {
+    id: r.id, name: r.name || '', status: r.status, contact: r.contact || '', contactRole: r.contact_role || '',
+    email: r.email || '', phone: r.phone || '', website: r.website || '', instagram: r.instagram || '',
+    industry: r.industry || '', city: r.city || '', storePlatform: r.store_platform || '',
+    services: r.services || [], retainer: Number(r.retainer) || 0, startDate: dateOnly(r.start_date), renewalDate: dateOnly(r.renewal_date),
+    driveLink: r.drive_link || '', tags: r.tags || [], notes: r.notes || '',
+    managerId: r.manager_id, onboardingOwnerId: r.onboarding_owner_id, adsOwnerId: r.ads_owner_id, assignedAt: r.assigned_at || {},
+    adPlatforms: r.ad_platforms || [], adBudget: Number(r.ad_budget) || 0, adGoal: r.ad_goal || '',
+    googleAdsId: r.google_ads_id || '', metaAdAccountId: r.meta_ad_account_id || '', tiktokAdAccountId: r.tiktok_ad_account_id || '',
+    checklist: r.checklist || {}, access: r.access || {},
+    deletedAt: r.deleted_at, createdAt: r.created_at, updatedAt: r.updated_at, lastActivity: r.last_activity,
+  };
+}
+function clientToDb(c) {
+  return {
+    name: c.name, status: c.status, contact: c.contact, contact_role: c.contactRole, email: c.email, phone: c.phone,
+    website: c.website, instagram: c.instagram, industry: c.industry, city: c.city, store_platform: c.storePlatform,
+    services: c.services, retainer: Number(c.retainer) || 0, start_date: c.startDate || null, renewal_date: c.renewalDate || null,
+    drive_link: c.driveLink, tags: c.tags, notes: c.notes,
+    manager_id: c.managerId || null, onboarding_owner_id: c.onboardingOwnerId || null, ads_owner_id: c.adsOwnerId || null,
+    ad_platforms: c.adPlatforms, ad_budget: Number(c.adBudget) || 0, ad_goal: c.adGoal,
+    google_ads_id: c.googleAdsId, meta_ad_account_id: c.metaAdAccountId, tiktok_ad_account_id: c.tiktokAdAccountId,
+    access: c.access,
+  };
+}
+function mapNoteFromDb(r) { return { id: r.id, clientId: r.client_id, kind: r.kind, body: r.body, authorId: r.author_id, createdAt: r.created_at }; }
+
+/* -------------------- DERIVED -------------------- */
+const allSorted = () => [...state.clients.values()].sort((a, b) => norm(a.name).localeCompare(norm(b.name)));
+const sorted = () => allSorted().filter(c => !c.deletedAt);
+const trashed = () => allSorted().filter(c => c.deletedAt);
+const live = id => { const c = state.clients.get(id); return c && !c.deletedAt ? c : null; };
+function setup(c) {
+  const ch = c.checklist || {};
+  return { done: CHECK.filter(x => ch[x.k] === 'done').length, total: CHECK.filter(x => ch[x.k] !== 'na').length, open: CHECK.filter(x => !ch[x.k]).map(x => x.l) };
+}
+const ownerIds = c => [c.managerId, c.onboardingOwnerId, c.adsOwnerId].filter(Boolean);
+function myRoles(c) { const me = state.me?.id; return me ? Object.keys(ROLE_FIELDS).filter(f => c[f] === me) : []; }
+function isNewForMe(c) {
+  const roles = myRoles(c); if (!roles.length) return false;
+  const last = state.seen[c.id] || '';
+  return roles.some(f => (c.assignedAt[ROLE_FIELDS[f][0]] || c.createdAt || '') > last);
+}
+function accessRows(c) { const a = c.access || {}; return ACCESS.filter(x => a[x.k] && (a[x.k].m || a[x.k].w)).map(x => ({ ...x, m: a[x.k].m || '', w: a[x.k].w || '' })); }
+function score(c, q) {
+  q = norm(q).trim(); if (!q) return 0;
+  const name = norm(c.name);
+  if (name === q) return 100; if (name.startsWith(q)) return 80; if (name.includes(q)) return 60;
+  const hay = norm([c.contact, c.email, c.phone, c.industry, c.city, c.tags.join(' '), c.website, c.instagram, c.storePlatform,
+    c.adPlatforms.join(' '), c.services.join(' '), ...ownerIds(c).map(staffName)].join(' '));
+  const toks = q.split(/\s+/).filter(Boolean);
+  const hits = toks.filter(t => name.includes(t) || hay.includes(t)).length;
+  return hits ? (hits === toks.length ? 40 : 15) + hits : 0;
+}
+
+/* -------------------- DATA LOADING -------------------- */
+async function loadStaff() {
+  const { data, error } = await sb.from('staff').select('*').order('name');
+  if (error) throw error;
+  state.staff = (data || []).map(mapStaffFromDb);
+  state.me = state.staff.find(s => s.userId === state.userId) || null;
+}
+async function loadClients() {
+  const { data, error } = await sb.from('clients').select('*');
+  if (error) throw error;
+  state.clients = new Map((data || []).map(r => [r.id, mapClientFromDb(r)]));
+}
+async function loadSeen() {
+  if (!state.me) return;
+  const { data } = await sb.from('client_seen').select('client_id, seen_at');
+  state.seen = Object.fromEntries((data || []).map(r => [r.client_id, r.seen_at]));
+}
+async function loadNotes(clientId) {
+  const { data, error } = await sb.from('client_notes').select('*').eq('client_id', clientId).order('created_at', { ascending: false }).limit(300);
+  if (error) { toast(friendlyError(error)); return; }
+  if (ui.openId !== clientId) return;
+  state.notes = (data || []).map(mapNoteFromDb); state.notesFor = clientId;
+  renderPanel();
+}
+async function loadAll() {
+  await loadStaff();
+  if (!state.me || !state.me.active) { state.loaded = true; return; }
+  await Promise.all([loadClients(), loadSeen()]);
+  state.loaded = true;
+  subscribeRealtime();
+}
+function subscribeRealtime() {
+  if (realtime || !sb.channel) return;
+  let staffTimer = null;
+  realtime = sb.channel('glio-crm')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, p => {
+      if (p.eventType === 'DELETE') state.clients.delete(p.old?.id);
+      else if (p.new) state.clients.set(p.new.id, mapClientFromDb(p.new));
+      if (ui.openId && !state.clients.has(ui.openId)) ui.openId = null;
+      refreshClientsPage();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'client_notes' }, p => {
+      const cid = p.new?.client_id || p.old?.client_id;
+      if (ui.openId && (!cid || cid === ui.openId)) loadNotes(ui.openId);
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'staff' }, () => {
+      clearTimeout(staffTimer);
+      staffTimer = setTimeout(async () => { try { await loadStaff(); render(); } catch {} }, 300);
+    })
+    .subscribe();
+}
+
+/* -------------------- AUTH -------------------- */
+const appUrl = () => window.location.origin + window.location.pathname;
+async function doLogin(e) {
+  e.preventDefault();
+  const email = $('login-email').value.trim(), password = $('login-password').value;
+  if (!email || !password) return authMsg('Enter your email and password.');
+  setBusy('login-submit', true);
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  setBusy('login-submit', false);
+  if (error) return authMsg(/invalid/i.test(error.message) ? 'Wrong email or password.' : error.message);
+  await afterAuth(data.user);
+}
+async function doSignup(e) {
+  e.preventDefault();
+  const name = $('su-name').value.trim(), email = $('su-email').value.trim(), password = $('su-password').value;
+  if (!name || !email || password.length < 8) return authMsg('Enter your name, email and a password of at least 8 characters.');
+  setBusy('su-submit', true);
+  const { data, error } = await sb.auth.signUp({ email, password, options: { data: { name }, emailRedirectTo: appUrl() } });
+  setBusy('su-submit', false);
+  if (error) return authMsg(error.message);
+  if (data.session) { await afterAuth(data.user); return; }
+  authMode = 'login'; render();
+  authMsg('Account created. Check your email for a confirmation link, then sign in.', 'ok');
+}
+async function doForgot(e) {
+  e.preventDefault();
+  const email = $('fp-email').value.trim();
+  if (!email) return authMsg('Enter your email.');
+  setBusy('fp-submit', true);
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: appUrl() });
+  setBusy('fp-submit', false);
+  if (error) return authMsg(error.message);
+  authMsg('If that email has an account, a reset link is on its way.', 'ok');
+}
+async function doRecovery(e) {
+  e.preventDefault();
+  const password = $('rp-password').value;
+  if (password.length < 8) return authMsg('Use at least 8 characters.');
+  setBusy('rp-submit', true);
+  const { data, error } = await sb.auth.updateUser({ password });
+  setBusy('rp-submit', false);
+  if (error) return authMsg(error.message);
+  authMode = 'login';
+  await afterAuth(data.user);
+  toast('Password updated');
+}
+function authMsg(t, kind) { const el = $('auth-msg'); if (el) { el.textContent = t; el.className = 'auth-msg ' + (kind || 'err'); el.hidden = false; } }
+function setBusy(id, b) { const el = $(id); if (el) el.disabled = b; }
+async function afterAuth(user) {
+  state.userId = user.id; state.email = user.email;
+  try { await loadAll(); } catch (e) { state.loaded = true; toast(friendlyError(e)); }
+  render();
+}
+async function logout() {
+  try { realtime && sb.removeChannel(realtime); } catch {}
+  realtime = null;
+  await sb.auth.signOut();
+  state = emptyState(); ui = emptyUi(); authMode = 'login';
+  mentionState = { items: [], sel: 0, start: -1 };
+  location.hash = '';
+  render();
+}
+
+/* -------------------- RENDER: SHELLS -------------------- */
+const app = () => $('app');
+function render() {
+  if (!sb) {
+    app().innerHTML = `<div class="center-screen"><div class="card-box"><div class="brand">glio<i></i></div><h2>Not configured yet</h2><p class="muted">Set SUPABASE_URL and SUPABASE_KEY in index.html to your Supabase project's values, or check your connection if the Supabase library failed to load.</p></div></div>`;
+    return;
+  }
+  if (authMode === 'recovery') return renderAuth();
+  if (!state.userId) return renderAuth();
+  if (!state.loaded) { app().innerHTML = `<div class="center-screen"><p class="muted">Loading client files…</p></div>`; return; }
+  if (!state.me || !state.me.active) {
+    app().innerHTML = `<div class="center-screen"><div class="card-box"><div class="brand">glio<i></i></div>
+      <h2>Your account isn't set up yet</h2>
+      <p class="muted">You're signed in as <b>${esc(state.email)}</b>, but this email isn't on the Glio team list${state.me && !state.me.active ? ' (it has been deactivated)' : ''}. Ask your admin to add this exact email on the Team page, then sign in again.</p>
+      <button class="btn" type="button" data-act="logout">Sign out</button></div></div>`;
+    return;
+  }
+  const route = location.hash.replace('#', '') || 'clients';
+  // Every route re-gates here; RLS enforces the same server-side.
+  if (route === 'team' && isAdmin()) renderTeamPage();
+  else renderClientsPage();
+}
+
+function renderAuth() {
+  const forms = {
+    login: `<form id="login-form" class="auth-form" novalidate>
+        <h2>Sign in</h2>
+        <div class="field"><label for="login-email">Email</label><input id="login-email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="login-password">Password</label><input id="login-password" type="password" autocomplete="current-password" required></div>
+        <button class="btn primary" id="login-submit" type="submit">Sign in</button>
+        <div class="auth-links"><button class="linkish" type="button" data-auth="forgot">Forgot password?</button><button class="linkish" type="button" data-auth="signup">New to the team? Create account</button></div>
+      </form>`,
+    signup: `<form id="signup-form" class="auth-form" novalidate>
+        <h2>Create your account</h2>
+        <p class="muted small">Use the email your admin added on the Team page.</p>
+        <div class="field"><label for="su-name">Your name</label><input id="su-name" type="text" autocomplete="name" required></div>
+        <div class="field"><label for="su-email">Email</label><input id="su-email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="su-password">Password (8+ characters)</label><input id="su-password" type="password" autocomplete="new-password" minlength="8" required></div>
+        <button class="btn primary" id="su-submit" type="submit">Create account</button>
+        <div class="auth-links"><button class="linkish" type="button" data-auth="login">Already have an account? Sign in</button></div>
+      </form>`,
+    forgot: `<form id="forgot-form" class="auth-form" novalidate>
+        <h2>Reset your password</h2>
+        <div class="field"><label for="fp-email">Email</label><input id="fp-email" type="email" autocomplete="email" required></div>
+        <button class="btn primary" id="fp-submit" type="submit">Send reset link</button>
+        <div class="auth-links"><button class="linkish" type="button" data-auth="login">Back to sign in</button></div>
+      </form>`,
+    recovery: `<form id="recovery-form" class="auth-form" novalidate>
+        <h2>Choose a new password</h2>
+        <div class="field"><label for="rp-password">New password (8+ characters)</label><input id="rp-password" type="password" autocomplete="new-password" minlength="8" required></div>
+        <button class="btn primary" id="rp-submit" type="submit">Save password</button>
+      </form>`,
+  };
+  app().innerHTML = `<div class="center-screen"><div class="card-box auth"><div class="brand">glio<i></i> <small>Client files</small></div>${forms[authMode]}<p id="auth-msg" class="auth-msg" hidden></p></div></div>`;
+  $('login-form')?.addEventListener('submit', doLogin);
+  $('signup-form')?.addEventListener('submit', doSignup);
+  $('forgot-form')?.addEventListener('submit', doForgot);
+  $('recovery-form')?.addEventListener('submit', doRecovery);
+  setTimeout(() => app().querySelector('input')?.focus(), 0);
+}
+
+function topBar(active) {
+  return `<div class="top">
+    <div class="brand">glio<i></i> <small>Client files</small></div>
+    <nav class="nav">${isAdmin() ? `<a href="#clients" class="${active === 'clients' ? 'on' : ''}">Clients</a><a href="#team" class="${active === 'team' ? 'on' : ''}">Team</a>` : ''}</nav>
+    <div class="spacer"></div>
+    ${active === 'clients' && isAdmin() ? `<button class="btn" type="button" data-act="backup">Download backup</button>` : ''}
+    ${active === 'clients' && canWrite() ? `<button class="btn primary" type="button" data-act="new">+ New client</button>` : ''}
+    <div class="who"><span title="${esc(state.email)}">${esc(state.me.name || state.email)}</span><span class="role">${STAFF_ROLES[state.me.role]}</span><button class="linkish" type="button" data-act="logout">Sign out</button></div>
+  </div>`;
+}
+
+function renderClientsPage() {
+  if (!$('clients-page')) {
+    app().innerHTML = `<div class="wrap" id="clients-page">
+      <div id="topbar"></div>
+      <section class="agent" aria-label="Find a client">
+        <div class="agent-row">
+          <div class="agent-mark" aria-hidden="true">@</div>
+          <input class="agent-input" id="cmd" type="text" autocomplete="off" placeholder="Type @ and a client's name to open their file, or type to filter the list" aria-label="Find a client">
+        </div>
+        <div class="mentions" id="mentions" hidden role="listbox" aria-label="Clients"></div>
+        <div class="agent-hint" id="smart"></div>
+      </section>
+      <div id="banner" class="banner" hidden></div>
+      <section class="foryou" id="foryou" hidden aria-live="polite"></section>
+      <div class="stats" id="stats"></div>
+      <div class="toolbar">
+        <select class="person" id="person" aria-label="Show clients for a team member"></select>
+        <div class="chips" id="filters"></div>
+      </div>
+      <div class="main" id="main">
+        <div class="roster" id="roster"></div>
+        <aside class="panel" id="panel" hidden aria-label="Client file"></aside>
+      </div>
+    </div>`;
+    bindClientsPage();
+  }
+  $('topbar').innerHTML = topBar('clients');
+  refreshClientsPage();
+}
+function refreshClientsPage() {
+  if (!$('clients-page')) return;
+  renderSmart(); renderForYou(); renderStats(); renderFilters(); renderRoster();
+  const ta = $('noteText'); const draft = ta && document.activeElement === ta ? ta.value : null;
+  renderPanel();
+  if (draft !== null && $('noteText')) { $('noteText').value = draft; $('noteText').focus(); }
+}
+
+/* -------------------- RENDER: CLIENTS PAGE PARTS -------------------- */
+function renderSmart() {
+  const opts = [['mine', 'My clients'], ['renewals', 'Renewals due ≤ 30 days'], ['quiet', 'No activity 30+ days'], ['stuck', 'Still in onboarding']];
+  $('smart').innerHTML = `<span><kbd>/</kbd> to search</span>` + opts.map(([k, l]) => `<button type="button" data-smart="${k}" aria-pressed="${ui.smart === k}" class="${ui.smart === k ? 'on' : ''}">${esc(l)}</button>`).join('')
+    + (ui.smart ? `<button type="button" data-smart="">Clear</button>` : '');
+}
+function renderForYou() {
+  const el = $('foryou');
+  const mine = sorted().filter(c => myRoles(c).length);
+  if (!mine.length) { el.hidden = true; return; }
+  const fresh = mine.filter(isNewForMe);
+  const openSteps = mine.filter(c => myRoles(c).includes('onboardingOwnerId') && (c.status === 'onboarding' || c.status === 'lead')).reduce((n, c) => n + setup(c).open.length, 0);
+  const first = (state.me.name || '').split(' ')[0] || 'Hi';
+  const role = c => myRoles(c).map(f => `<span class="role">${ROLE_FIELDS[f][1]}</span>`).join(' ');
+  el.hidden = false;
+  el.innerHTML = `<h3>${fresh.length ? `${esc(first)}, you have ${fresh.length} new client${fresh.length > 1 ? 's' : ''} assigned` : `${esc(first)}, nothing new for you`}</h3>
+    ${fresh.length ? `<ul class="fy-list">${fresh.map(c => `<li><b>${esc(c.name)}</b>${role(c)}${pill(c.status)}<button class="btn small primary" type="button" data-open="${esc(c.id)}">Open file</button></li>`).join('')}</ul>` : ''}
+    <div class="fy-row"><span class="muted">You're on ${mine.length} client${mine.length === 1 ? '' : 's'}${openSteps ? ` · ${openSteps} onboarding step${openSteps > 1 ? 's' : ''} still open` : ''}.</span><button class="btn small" type="button" data-smart="mine">Show my clients</button></div>`;
+}
+function renderStats() {
+  const all = sorted();
+  const active = all.filter(c => c.status === 'active').length;
+  const mrr = all.filter(c => c.status === 'active' || c.status === 'onboarding').reduce((s, c) => s + c.retainer, 0);
+  const due = all.filter(c => { const d = daysUntil(c.renewalDate); return d !== null && d <= 30 && c.status !== 'past'; }).length;
+  $('stats').innerHTML = [[all.length, 'Clients on file'], [active, 'Active'], [CURRENCY + ' ' + money(mrr), 'Monthly retainers'], [due, 'Renewals ≤ 30 days']]
+    .map(([v, l]) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+}
+function renderFilters() {
+  const all = sorted(), tn = trashed().length;
+  const sel = $('person');
+  const people = assignable();
+  sel.innerHTML = `<option value="">Everyone's clients</option>` + people.map(s => `<option value="${esc(s.id)}" ${ui.person === s.id ? 'selected' : ''}>${esc(s.name || s.email)}'s clients</option>`).join('');
+  sel.hidden = people.length < 2;
+  const opts = [{ key: 'all', label: 'All' }, ...STATUSES];
+  if (isAdmin() && tn) opts.push({ key: 'trash', label: 'Deleted' });
+  else if (ui.filter === 'trash') ui.filter = 'all';
+  $('filters').innerHTML = opts.map(o => {
+    const n = o.key === 'all' ? all.length : o.key === 'trash' ? tn : all.filter(c => c.status === o.key).length;
+    return `<button class="chip" type="button" data-f="${o.key}" aria-pressed="${ui.filter === o.key}">${esc(o.label)}<span class="n">${n}</span></button>`;
+  }).join('');
+}
+function visibleClients() {
+  let list = ui.filter === 'trash' ? trashed() : sorted();
+  if (ui.filter !== 'all' && ui.filter !== 'trash') list = list.filter(c => c.status === ui.filter);
+  if (ui.person) list = list.filter(c => ownerIds(c).includes(ui.person));
+  if (ui.smart === 'mine') list = list.filter(c => myRoles(c).length);
+  if (ui.smart === 'renewals') list = list.filter(c => { const d = daysUntil(c.renewalDate); return d !== null && d <= 30 && c.status !== 'past'; }).sort((a, b) => a.renewalDate.localeCompare(b.renewalDate));
+  if (ui.smart === 'quiet') list = list.filter(c => c.status !== 'past' && daysSince(c.lastActivity) >= 30).sort((a, b) => (a.lastActivity || '').localeCompare(b.lastActivity || ''));
+  if (ui.smart === 'stuck') list = list.filter(c => (c.status === 'onboarding' || c.status === 'lead') && setup(c).open.length);
+  const q = ui.q.replace(/^@/, '');
+  if (q.trim()) list = list.map(c => [c, score(c, q)]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+  return list;
+}
+function renderRoster() {
+  const el = $('roster');
+  if (!sorted().length && ui.filter !== 'trash') {
+    el.innerHTML = `<div class="empty"><h3>No clients yet</h3><p>Add your first client and their file will live here: contacts, services, retainer, renewal date, onboarding checklist, ads, access and an activity log the whole team can see.</p>${canWrite() ? `<button class="btn primary" type="button" data-act="new">+ Add first client</button>` : ''}</div>`;
+    return;
+  }
+  const list = visibleClients();
+  if (!list.length) { el.innerHTML = `<div class="empty"><p>No clients match this view.</p></div>`; return; }
+  const head = `<div class="row head"><span>Client</span><span>Status</span><span class="c-svc">Team</span><span class="c-ret">Retainer</span><span class="c-ren">Renewal</span></div>`;
+  el.innerHTML = head + list.map(c => {
+    const d = daysUntil(c.renewalDate), su = setup(c);
+    const ren = c.renewalDate ? `<span class="num ${d < 0 ? 'overdue' : d <= 30 ? 'due' : ''}">${esc(fmtDate(c.renewalDate))}</span>` : `<span class="muted">—</span>`;
+    const team = [['Onb', c.onboardingOwnerId], ['Ads', c.adsOwnerId]].filter(x => x[1]).map(([k, id]) => `<span class="tag">${k}: ${esc((staffName(id) || '?').split(' ')[0])}</span>`).join('');
+    return `<button class="row ${ui.openId === c.id ? 'sel' : ''}" type="button" data-open="${esc(c.id)}">
+      <span style="min-width:0"><div class="cname">${esc(c.name)}${isNewForMe(c) ? `<span class="newb">New</span>` : ''}</div><div class="csub">${esc([c.contact, c.industry, c.city].filter(Boolean).join(' · ') || 'No contact yet')}</div></span>
+      <span>${pill(c.status)}${(c.status === 'onboarding' || c.status === 'lead') && su.done ? `<div class="setup">Setup ${su.done}/${su.total}</div>` : ''}</span>
+      <span class="svc c-svc">${team || `<span class="muted">—</span>`}</span>
+      <span class="num c-ret">${c.retainer ? esc(money(c.retainer)) : `<span class="muted">—</span>`}</span>
+      <span class="c-ren">${ren}</span>
+    </button>`;
+  }).join('');
+}
+
+/* -------------------- CLIENT FILE PANEL -------------------- */
+function openClient(id) {
+  if (!state.clients.has(id)) return false;
+  if (ui.openId !== id) { ui.logKind = 'all'; state.notes = []; state.notesFor = null; }
+  ui.openId = id; ui.confirmDel = false;
+  renderPanel(); renderRoster();
+  if (window.matchMedia('(min-width: 901px)').matches) $('panel').scrollTop = 0;
+  loadNotes(id); markSeen(id);
+  return true;
+}
+function closePanel() { ui.openId = null; renderPanel(); renderRoster(); }
+async function markSeen(id) {
+  const c = state.clients.get(id); if (!c || !isNewForMe(c)) return;
+  const at = new Date().toISOString();
+  state.seen[id] = at;
+  renderForYou(); renderRoster();
+  await sb.from('client_seen').upsert({ staff_id: state.me.id, client_id: id, seen_at: at });
+}
+const copyBtn = v => `<button class="copy" type="button" data-copy="${esc(v)}">Copy</button>`;
+const kv = rows => `<dl class="kv">${rows.filter(r => r[1]).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join('')}</dl>`;
+function renderPanel() {
+  const p = $('panel'), main = $('main'); if (!p) return;
+  const c = ui.openId && state.clients.get(ui.openId);
+  if (!c) { p.hidden = true; main.classList.remove('has-panel'); return; }
+  p.hidden = false; main.classList.add('has-panel');
+  const edit = canWrite() && !c.deletedAt;
+  const d = daysUntil(c.renewalDate);
+  const web = safeUrl(c.website), ig = igUrl(c.instagram), drive = safeUrl(c.driveLink);
+  const contactRows = [
+    ['Contact', c.contact ? esc(c.contact) + (c.contactRole ? ` <span class="muted">· ${esc(c.contactRole)}</span>` : '') : ''],
+    ['Email', c.email ? `<span>${esc(c.email)}</span>${copyBtn(c.email)}` : ''],
+    ['Phone', c.phone ? `<span class="num">${esc(c.phone)}</span>${copyBtn(c.phone)}` : ''],
+    ['Website', web ? `<a href="${esc(web)}" target="_blank" rel="noopener">${esc(c.website)}</a>` : ''],
+    ['Instagram', ig ? `<a href="${esc(ig)}" target="_blank" rel="noopener">${esc(c.instagram)}</a>` : ''],
+    ['Industry', esc(c.industry)], ['City', esc(c.city)], ['Store', esc(c.storePlatform)],
+  ];
+  const engRows = [
+    ['Services', c.services.length ? c.services.map(s => `<span class="tag">${esc(s)}</span>`).join(' ') : ''],
+    ['Retainer', c.retainer ? `<span class="num">${CURRENCY} ${esc(money(c.retainer))} / month</span>` : ''],
+    ['Started', c.startDate ? `<span class="num">${esc(fmtDate(c.startDate))}</span>` : ''],
+    ['Renewal', c.renewalDate ? `<span class="num ${d < 0 ? 'overdue' : d <= 30 ? 'due' : ''}">${esc(fmtDate(c.renewalDate))}</span> <span class="muted">${d < 0 ? `${-d} days overdue` : d === 0 ? 'today' : `in ${d} days`}</span>` : ''],
+    ['Files', drive ? `<a href="${esc(drive)}" target="_blank" rel="noopener">Open shared folder</a>` : ''],
+    ['Tags', c.tags.length ? c.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join(' ') : ''],
+  ];
+  const teamRows = Object.entries(ROLE_FIELDS).map(([f, [, l]]) => [l, c[f] ? esc(staffName(c[f]) || 'Removed member') : '']);
+  const notes = state.notesFor === c.id ? state.notes.filter(n => ui.logKind === 'all' || n.kind === ui.logKind || (ui.logKind === 'note' && n.kind === 'system')) : null;
+  const myId = state.me.id;
+  p.innerHTML = `
+    <div class="p-head">
+      <div class="p-title"><h2>${esc(c.name)}</h2><button class="btn ghost small" type="button" data-act="close" aria-label="Close client file">✕</button></div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${pill(c.status)}<span class="muted" style="font-size:13px">Updated ${esc(ago(c.updatedAt))}</span></div>
+      <div class="p-actions">${edit ? `<button class="btn small" type="button" data-act="edit">Edit file</button><button class="btn small" type="button" data-act="focusnote">Log activity</button>` : ''}<button class="btn small" type="button" data-act="copyfile">Copy summary</button></div>
+    </div>
+    ${c.deletedAt ? `<div class="sec"><div class="trash-note"><span>This client was deleted ${esc(ago(c.deletedAt))}. It's hidden from the team.</span>${isAdmin() ? `<div class="confirm">${ui.confirmDel
+      ? `<span>Erase it for good? This can't be undone.</span><button class="btn small danger" type="button" data-act="purgeyes">Erase forever</button><button class="btn small" type="button" data-act="delno">Cancel</button>`
+      : `<button class="btn small primary" type="button" data-act="restore">Restore client</button><button class="btn ghost small danger" type="button" data-act="purge">Erase forever</button>`}</div>` : ''}</div></div>` : ''}
+    <div class="sec"><h4>Contact</h4>${contactRows.some(r => r[1]) ? kv(contactRows) : `<span class="muted">No contact details yet.</span>`}</div>
+    <div class="sec"><h4>Engagement</h4>${engRows.some(r => r[1]) ? kv(engRows) : `<span class="muted">No engagement details yet.</span>`}</div>
+    <div class="sec"><h4>Team</h4>${teamRows.some(r => r[1]) ? kv(teamRows) : `<span class="muted">No one assigned yet. Use Edit file to set the account lead, onboarding and ads owners.</span>`}</div>
+    ${setupSec(c, edit)}
+    ${adsSec(c)}
+    ${accessSec(c)}
+    <div class="sec"><h4>Background &amp; key details</h4>${c.notes ? `<div class="notes">${esc(c.notes)}</div>` : `<span class="muted">Nothing written yet. Use Edit file to add goals, brand voice, approval process, and anything the team should know. Never paste passwords here.</span>`}</div>
+    <div class="sec"><h4>Activity</h4>
+      ${edit ? `<div class="note-box"><textarea id="noteText" placeholder="Log a call, setup step, campaign launch, result…" aria-label="New activity note"></textarea><div class="note-row"><select id="noteKind" aria-label="Note type">${Object.entries(LOG_KINDS).map(([k, l]) => `<option value="${k}" ${ui.noteKind === k ? 'selected' : ''}>${l}</option>`).join('')}</select><button class="btn small primary" type="button" data-act="addnote">Add to log</button></div></div>` : ''}
+      ${notes === null ? `<span class="muted">Loading activity…</span>` : `
+      ${state.notes.length ? `<div class="log-tools">${['all', ...Object.keys(LOG_KINDS)].map(k => `<button class="chip" type="button" data-logkind="${k}" aria-pressed="${ui.logKind === k}">${k === 'all' ? 'All' : LOG_KINDS[k]}</button>`).join('')}</div>` : ''}
+      ${notes.length ? `<ul class="log">${notes.map(n => `<li class="${n.kind === 'system' ? 'sys' : ''}"><div class="txt">${n.kind === 'onboarding' || n.kind === 'ads' ? `<span class="ktag">${LOG_KINDS[n.kind]}</span> ` : ''}${esc(n.body)}</div><div class="meta"><span>${esc(ago(n.createdAt))}</span>${n.authorId ? `<span>· ${esc(staffName(n.authorId) || 'Former member')}</span>` : ''}${n.kind !== 'system' && edit && (isAdmin() || n.authorId === myId) ? `<button type="button" data-delnote="${esc(n.id)}">Remove</button>` : ''}</div></li>`).join('')}</ul>` : `<span class="muted">No activity yet.</span>`}`}
+    </div>
+    ${isAdmin() && !c.deletedAt ? `<div class="sec">${ui.confirmDel ? `<div class="confirm"><span>Move ${esc(c.name)} to Deleted? You can restore it later.</span><button class="btn small danger" type="button" data-act="delyes">Delete</button><button class="btn small" type="button" data-act="delno">Keep</button></div>` : `<div><button class="btn ghost small danger" type="button" data-act="del">Delete client</button></div>`}</div>` : ''}
+  `;
+}
+function setupSec(c, edit) {
+  const ch = c.checklist || {}, s = setup(c), pct = s.total ? Math.round(s.done / s.total * 100) : 0;
+  const groups = [...new Set(CHECK.map(x => x.g))];
+  return `<div class="sec"><h4>Onboarding setup</h4>
+    <div class="progress"><span class="num">${s.done}/${s.total} done</span><div class="bar"><i style="width:${pct}%"></i></div></div>
+    <div class="check">${groups.map(g => `<div class="check-group"><h5>${esc(g)}</h5>${CHECK.filter(x => x.g === g).map(x => {
+      const v = ch[x.k];
+      return `<div class="check-item ${v === 'na' ? 'na' : ''}"><input type="checkbox" id="ck_${x.k}" data-check="${x.k}" ${v === 'done' ? 'checked' : ''} ${!edit || v === 'na' ? 'disabled' : ''}><label for="ck_${x.k}">${esc(x.l)}</label>${edit ? `<button class="skip" type="button" data-skip="${x.k}">${v === 'na' ? 'Needed' : 'Not needed'}</button>` : v === 'na' ? `<span class="done-mark">Not needed</span>` : ''}</div>`;
+    }).join('')}</div>`).join('')}</div></div>`;
+}
+function adsSec(c) {
+  const ids = [['Google Ads ID', c.googleAdsId], ['Meta ad account', c.metaAdAccountId], ['TikTok ad account', c.tiktokAdAccountId]].filter(r => r[1]);
+  const rows = [
+    ['Platforms', c.adPlatforms.length ? c.adPlatforms.map(s => `<span class="tag">${esc(s)}</span>`).join(' ') : ''],
+    ['Ad budget', c.adBudget ? `<span class="num">${CURRENCY} ${esc(money(c.adBudget))} / month</span>` : ''],
+    ['Goal', esc(c.adGoal)],
+    ...ids.map(([k, v]) => [k, `<span class="num">${esc(v)}</span>${copyBtn(v)}`]),
+  ];
+  return `<div class="sec"><h4>Ads</h4>${rows.some(r => r[1]) ? kv(rows) : `<span class="muted">No ads details yet. Use Edit file to add platforms, budget, goal and ad account IDs.</span>`}</div>`;
+}
+function accessSec(c) {
+  const rows = accessRows(c);
+  return `<div class="sec"><h4>Access &amp; logins</h4>${rows.length ? `<ul class="access-list">${rows.map(x => `<li><span>${esc(x.l)}</span>${x.m && AM[x.m] ? `<span class="pill" style="--c: var(${AM[x.m].c})">${esc(AM[x.m].l)}</span>` : '<span></span>'}${x.w ? `<span class="where">${esc(x.w)}</span>` : ''}</li>`).join('')}</ul>` : `<span class="muted">No access recorded yet. Use Edit file to note how Glio has access to each platform and where any logins are kept. Never the passwords themselves.</span>`}</div>`;
+}
+function fileText(c) {
+  const L = [c.name, `Status: ${(ST[c.status] || ST.lead).label}`];
+  if (c.contact) L.push(`Contact: ${c.contact}${c.contactRole ? ' (' + c.contactRole + ')' : ''}`);
+  if (c.email) L.push(`Email: ${c.email}`); if (c.phone) L.push(`Phone: ${c.phone}`);
+  if (c.website) L.push(`Website: ${c.website}`); if (c.instagram) L.push(`Instagram: ${c.instagram}`);
+  if (c.services.length) L.push(`Services: ${c.services.join(', ')}`);
+  if (c.retainer) L.push(`Retainer: ${CURRENCY} ${money(c.retainer)}/month`);
+  if (c.renewalDate) L.push(`Renewal: ${fmtDate(c.renewalDate)}`);
+  for (const [f, [, l]] of Object.entries(ROLE_FIELDS)) if (c[f]) L.push(`${l}: ${staffName(c[f])}`);
+  if (c.adPlatforms.length) L.push(`Ad platforms: ${c.adPlatforms.join(', ')}`);
+  if (c.adBudget) L.push(`Ad budget: ${CURRENCY} ${money(c.adBudget)}/month`);
+  if (c.adGoal) L.push(`Ad goal: ${c.adGoal}`);
+  const su = setup(c); L.push(`Onboarding setup: ${su.done}/${su.total} done`);
+  for (const x of accessRows(c)) L.push(`Access, ${x.l}: ${x.m && AM[x.m] ? AM[x.m].l : '-'}${x.w ? ' (' + x.w + ')' : ''}`);
+  if (c.notes) L.push('', c.notes);
+  return L.join('\n');
+}
+
+/* -------------------- WRITES -------------------- */
+async function updateClient(id, patch) {
+  const { data, error } = await sb.from('clients').update(patch).eq('id', id).select().single();
+  if (error) throw error;
+  state.clients.set(data.id, mapClientFromDb(data));
+  return data;
+}
+async function setCheck(id, key, val) {
+  const c = state.clients.get(id); if (!c) return;
+  const checklist = { ...(c.checklist || {}) };
+  if (val) checklist[key] = val; else delete checklist[key];
+  await updateClient(id, { checklist });
+  refreshClientsPage();
+}
+async function addNote(id, body, kind) {
+  if (PW_RE.test(body)) throw new Error('client_notes_no_passwords');
+  const { error } = await sb.from('client_notes').insert({ client_id: id, kind: LOG_KINDS[kind] ? kind : 'note', body: body.slice(0, 4000) });
+  if (error) throw error;
+  await loadNotes(id);
+  const { data } = await sb.from('clients').select('*').eq('id', id).single();
+  if (data) { state.clients.set(id, mapClientFromDb(data)); refreshClientsPage(); }
+}
+
+/* -------------------- CLIENT FORM -------------------- */
+function openForm(id) {
+  const c = id ? state.clients.get(id) : { status: 'lead', services: [], adPlatforms: [], tags: [], access: {} };
+  if (!c) return;
+  const f = (name, label, type = 'text', extra = '') => `<div class="field ${extra}"><label for="f_${name}">${label}</label><input id="f_${name}" name="${name}" type="${type}" value="${esc(c[name] ?? '')}" ${type === 'number' ? 'min="0" step="any" inputmode="decimal"' : ''}></div>`;
+  const ownerSel = (field, label) => `<div class="field"><label for="f_${field}">${label}</label><select id="f_${field}" name="${field}"><option value="">— Not assigned —</option>${assignable().map(s => `<option value="${esc(s.id)}" ${c[field] === s.id ? 'selected' : ''}>${esc(s.name || s.email)}</option>`).join('')}</select></div>`;
+  const ov = $('overlay');
+  ov.innerHTML = `<form class="form" id="clientForm" novalidate>
+    <header><h3>${id ? 'Edit ' + esc(c.name) : 'New client'}</h3><button class="btn ghost small" type="button" data-act="cancel" aria-label="Close">✕</button></header>
+    <div class="fgrid">
+      <div class="safety" role="note"><b aria-hidden="true">!</b><span><strong>Keep sensitive data out.</strong> Don't save passwords, bank or card details, or national ID numbers here. Ad account IDs are fine. Keep logins in your password manager and note where they are below.</span></div>
+      <div class="field full"><label for="f_name">Client / brand name *</label><input id="f_name" name="name" type="text" required value="${esc(c.name ?? '')}"></div>
+      <div class="field"><label for="f_status">Status</label><select id="f_status" name="status">${STATUSES.map(s => `<option value="${s.key}" ${c.status === s.key ? 'selected' : ''}>${esc(s.label)}</option>`).join('')}</select></div>
+      ${f('industry', 'Industry')}
+      ${f('contact', 'Main contact')}
+      ${f('contactRole', 'Their role')}
+      ${f('email', 'Email', 'email')}
+      ${f('phone', 'Phone / WhatsApp', 'tel')}
+      ${f('website', 'Website')}
+      ${f('instagram', 'Instagram')}
+      ${f('city', 'City')}
+      <div class="field"><label for="f_storePlatform">Store platform</label><select id="f_storePlatform" name="storePlatform"><option value="">—</option>${STORE_PLATFORMS.map(s => `<option ${c.storePlatform === s ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select></div>
+      <div class="field full"><span class="lbl">Services</span><div class="svc-pick">${SERVICES.map((s, i) => `<label><input type="checkbox" id="f_svc${i}" name="services" value="${esc(s)}" ${(c.services || []).includes(s) ? 'checked' : ''}>${esc(s)}</label>`).join('')}</div></div>
+      ${f('retainer', `Monthly retainer (${CURRENCY})`, 'number')}
+      ${f('driveLink', 'Shared folder link')}
+      ${f('startDate', 'Start date', 'date')}
+      ${f('renewalDate', 'Renewal date', 'date')}
+      <div class="fsec">Team</div>
+      ${ownerSel('managerId', 'Account lead')}
+      ${ownerSel('onboardingOwnerId', 'Onboarding and integrations')}
+      ${ownerSel('adsOwnerId', 'Ads')}
+      <div class="fsec">Ads</div>
+      <div class="field full"><span class="lbl">Platforms</span><div class="svc-pick">${AD_PLATFORMS.map((s, i) => `<label><input type="checkbox" id="f_ap${i}" name="adPlatforms" value="${esc(s)}" ${(c.adPlatforms || []).includes(s) ? 'checked' : ''}>${esc(s)}</label>`).join('')}</div></div>
+      ${f('adBudget', `Monthly ad budget (${CURRENCY})`, 'number')}
+      ${f('adGoal', 'Main goal / target')}
+      ${f('googleAdsId', 'Google Ads customer ID')}
+      ${f('metaAdAccountId', 'Meta (Instagram) ad account ID')}
+      ${f('tiktokAdAccountId', 'TikTok ad account ID')}
+      <div class="fsec">Access &amp; logins</div>
+      <div class="field full"><span class="muted" style="font-size:13px">Record how Glio gets in and where any login is kept, e.g. “Bitwarden → Hassad – Salla admin”. Never type the password itself.</span></div>
+      ${ACCESS.map(x => { const a = (c.access || {})[x.k] || {}; return `<div class="field full"><div class="access-row"><span class="lbl">${esc(x.l)}</span><select id="f_acm_${x.k}" name="acm_${x.k}" aria-label="${esc(x.l)}: how we have access"><option value="">—</option>${ACCESS_METHODS.map(m => `<option value="${m.k}" ${a.m === m.k ? 'selected' : ''}>${esc(m.l)}</option>`).join('')}</select><input id="f_acw_${x.k}" name="acw_${x.k}" type="text" value="${esc(a.w || '')}" placeholder="Where / details" aria-label="${esc(x.l)}: where or details"></div></div>`; }).join('')}
+      <div class="fsec">Other</div>
+      <div class="field full"><label for="f_tags">Tags (comma separated)</label><input id="f_tags" name="tags" type="text" value="${esc((c.tags || []).join(', '))}" placeholder="e.g. vip, ramadan-campaign"></div>
+      <div class="field full"><label for="f_notes">Background &amp; key details</label><textarea id="f_notes" name="notes" rows="6" placeholder="Goals, brand voice, approval process, preferences, history…">${esc(c.notes ?? '')}</textarea></div>
+    </div>
+    <footer><span class="err" id="formErr"></span><button class="btn" type="button" data-act="cancel">Cancel</button><button class="btn primary" type="submit" id="formSave">${id ? 'Save changes' : 'Create client'}</button></footer>
+  </form>`;
+  ov.hidden = false; ov.dataset.id = id || '';
+  $('clientForm').addEventListener('submit', submitForm);
+  setTimeout(() => $('f_name').focus(), 0);
+}
+function closeForm() { const ov = $('overlay'); if (ov) { ov.hidden = true; ov.innerHTML = ''; } }
+async function submitForm(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target), id = $('overlay').dataset.id || null;
+  const name = String(fd.get('name') || '').trim();
+  if (!name) { $('formErr').textContent = "Add the client's name to save."; $('f_name').focus(); return; }
+  const access = {};
+  for (const x of ACCESS) access[x.k] = { m: String(fd.get('acm_' + x.k) || ''), w: String(fd.get('acw_' + x.k) || '').trim() };
+  const pwHit = ACCESS.some(x => PW_RE.test(access[x.k].w)) ? 'Access & logins' : PW_RE.test(String(fd.get('notes') || '')) ? 'Background notes' : null;
+  if (pwHit) { $('formErr').textContent = `That looks like a password in ${pwHit}. Save it in your password manager and write where it's kept instead.`; return; }
+  const num = k => { const v = String(fd.get(k) || '').replace(/,/g, ''); return v ? Number(v) || 0 : 0; };
+  const c = { name, access, services: fd.getAll('services').map(String), adPlatforms: fd.getAll('adPlatforms').map(String),
+    tags: String(fd.get('tags') || '').split(',').map(s => s.trim().replace(/^#/, '')).filter(Boolean), retainer: num('retainer'), adBudget: num('adBudget') };
+  for (const k of ['status', 'industry', 'contact', 'contactRole', 'email', 'phone', 'website', 'instagram', 'city', 'storePlatform', 'driveLink', 'startDate', 'renewalDate', 'notes', 'adGoal', 'googleAdsId', 'metaAdAccountId', 'tiktokAdAccountId', 'managerId', 'onboardingOwnerId', 'adsOwnerId']) c[k] = String(fd.get(k) || '').trim();
+  const prev = (id && state.clients.get(id)) || {};
+  const newly = [...new Set(Object.keys(ROLE_FIELDS).filter(f => c[f] && c[f] !== prev[f] && c[f] !== state.me.id).map(f => staffName(c[f])))];
+  $('formSave').disabled = true; $('formErr').textContent = '';
+  try {
+    let row;
+    if (id) row = await updateClient(id, clientToDb(c));
+    else {
+      const { data, error } = await sb.from('clients').insert(clientToDb(c)).select().single();
+      if (error) throw error;
+      row = data; state.clients.set(row.id, mapClientFromDb(row));
+    }
+    closeForm();
+    refreshClientsPage();
+    openClient(row.id);
+    toast((id ? 'Changes saved' : `${name} added`) + (newly.length ? `. ${newly.join(' and ')} will see it as new.` : ''));
+  } catch (er) { $('formErr').textContent = friendlyError(er); $('formSave').disabled = false; }
+}
+
+/* -------------------- MENTIONS (@client) -------------------- */
+function updateMentions() {
+  const inp = $('cmd'), pos = inp.selectionStart ?? inp.value.length;
+  const m = inp.value.slice(0, pos).match(/@([^@\n]{0,40})$/);
+  if (!m) return hideMentions();
+  const q = norm(m[1]).trim();
+  let items = sorted();
+  if (q) items = items.filter(c => norm(c.name).includes(q) || norm(c.contact).includes(q));
+  if (!items.length) return hideMentions();
+  mentionState = { items: items.slice(0, 7), sel: 0, start: pos - m[0].length };
+  drawMentions();
+}
+function drawMentions() {
+  $('mentions').innerHTML = mentionState.items.map((c, i) => `<button type="button" role="option" aria-selected="${i === mentionState.sel}" data-mention="${esc(c.id)}"><b>${esc(c.name)}</b><span class="sub">${esc(c.contact || (ST[c.status] || ST.lead).label)}</span></button>`).join('');
+  $('mentions').hidden = false;
+}
+function hideMentions() { const el = $('mentions'); if (el) el.hidden = true; mentionState.items = []; }
+function pickMention(id) {
+  hideMentions();
+  $('cmd').value = ''; ui.q = '';
+  openClient(id);
+  if (!window.matchMedia('(min-width: 901px)').matches) return;
+  $('panel').focus?.();
+}
+
+/* -------------------- TEAM PAGE (admin) -------------------- */
+function renderTeamPage() {
+  const rows = [...state.staff].sort((a, b) => (a.active === b.active ? 0 : a.active ? -1 : 1) || (a.name || a.email).localeCompare(b.name || b.email));
+  app().innerHTML = `<div class="wrap">${topBar('team')}
+    <section class="team">
+      <div class="team-head"><h2>Team</h2><p class="muted">Add a teammate's email here first. They then open the CRM, choose <b>Create account</b> with that same email, and they're in.</p></div>
+      <form class="team-add" id="teamAdd" novalidate>
+        <div class="field"><label for="t_name">Name</label><input id="t_name" type="text" required></div>
+        <div class="field"><label for="t_email">Email</label><input id="t_email" type="email" required></div>
+        <div class="field"><label for="t_role">Role</label><select id="t_role">${Object.entries(STAFF_ROLES).map(([k, l]) => `<option value="${k}" ${k === 'member' ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+        <button class="btn primary" type="submit">Add to team</button>
+      </form>
+      <p class="muted small"><b>Admin</b>: everything, including team, deleting clients and backups. <b>Member</b>: add and edit clients. <b>Viewer</b>: read only.</p>
+      <div class="roster">
+        ${rows.map(s => {
+          const self = s.userId === state.userId;
+          return `<div class="team-row ${s.active ? '' : 'inactive'}">
+            <span style="min-width:0"><div class="cname">${esc(s.name || '—')}${self ? ' <span class="muted">(you)</span>' : ''}</div><div class="csub">${esc(s.email)}</div></span>
+            <span class="muted small">${s.userId ? 'Signed up' : 'Waiting for sign-up'}</span>
+            <select data-staff-role="${esc(s.id)}" ${self ? 'disabled title="Ask another admin to change your role"' : ''} aria-label="Role for ${esc(s.name || s.email)}">${Object.entries(STAFF_ROLES).map(([k, l]) => `<option value="${k}" ${s.role === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
+            ${self ? '<span></span>' : `<button class="btn small ${s.active ? 'ghost danger' : ''}" type="button" data-staff-active="${esc(s.id)}">${s.active ? 'Deactivate' : 'Reactivate'}</button>`}
+          </div>`;
+        }).join('')}
+      </div>
+    </section></div>`;
+  $('teamAdd').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = $('t_name').value.trim(), email = $('t_email').value.trim().toLowerCase(), role = $('t_role').value;
+    if (!name || !/^\S+@\S+\.\S+$/.test(email)) return toast('Enter a name and a valid email.');
+    const { error } = await sb.from('staff').insert({ name, email, role });
+    if (error) return toast(friendlyError(error));
+    await loadStaff(); renderTeamPage(); toast(`${name} added. Ask them to create their account with ${email}.`);
+  });
+}
+
+/* -------------------- BACKUP -------------------- */
+function csvCell(v) { const s = String(v ?? ''); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+async function downloadBackup() {
+  const { data: noteRows, error } = await sb.from('client_notes').select('*').order('created_at');
+  if (error) return toast(friendlyError(error));
+  const byClient = {};
+  for (const n of noteRows || []) (byClient[n.client_id] = byClient[n.client_id] || []).push(n);
+  const cols = [['Client', c => c.name], ['Status', c => (ST[c.status] || ST.lead).label], ['Contact', c => c.contact], ['Role', c => c.contactRole], ['Email', c => c.email], ['Phone', c => c.phone],
+    ['Website', c => c.website], ['Instagram', c => c.instagram], ['Industry', c => c.industry], ['City', c => c.city], ['Store platform', c => c.storePlatform],
+    ['Account lead', c => staffName(c.managerId)], ['Onboarding owner', c => staffName(c.onboardingOwnerId)], ['Ads owner', c => staffName(c.adsOwnerId)],
+    ['Services', c => c.services.join('; ')], [`Monthly retainer (${CURRENCY})`, c => c.retainer || ''], ['Start date', c => c.startDate], ['Renewal date', c => c.renewalDate],
+    ['Ad platforms', c => c.adPlatforms.join('; ')], [`Monthly ad budget (${CURRENCY})`, c => c.adBudget || ''], ['Ad goal', c => c.adGoal],
+    ['Google Ads ID', c => c.googleAdsId], ['Meta ad account', c => c.metaAdAccountId], ['TikTok ad account', c => c.tiktokAdAccountId],
+    ['Access & logins', c => accessRows(c).map(x => `${x.l}: ${x.m && AM[x.m] ? AM[x.m].l : '-'}${x.w ? ' (' + x.w + ')' : ''}`).join('\n')],
+    ['Onboarding setup', c => { const s = setup(c); return `${s.done}/${s.total}`; }], ['Setup still open', c => setup(c).open.join('; ')],
+    ['Tags', c => c.tags.join('; ')], ['Shared folder', c => c.driveLink], ['Background notes', c => c.notes],
+    ['Activity log', c => (byClient[c.id] || []).map(n => `${n.created_at.slice(0, 10)} [${LOG_KINDS[n.kind] || 'System'}] ${staffName(n.author_id)}: ${n.body}`).join('\n')],
+    ['Created', c => (c.createdAt || '').slice(0, 10)], ['Last updated', c => (c.updatedAt || '').slice(0, 10)], ['Deleted', c => c.deletedAt ? 'Yes' : ''], ['Record id', c => c.id]];
+  const rows = [cols.map(x => x[0]), ...allSorted().map(c => cols.map(x => x[1](c)))];
+  const csv = '﻿' + rows.map(r => r.map(csvCell).join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = `glio-clients-backup-${today()}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast(`Backup downloaded (${allSorted().length} clients)`);
+}
+
+/* -------------------- EVENTS -------------------- */
+function bindClientsPage() {
+  const cmd = $('cmd');
+  cmd.addEventListener('input', () => { ui.q = cmd.value.startsWith('@') ? '' : cmd.value; updateMentions(); renderRoster(); });
+  cmd.addEventListener('click', updateMentions);
+  cmd.addEventListener('blur', () => setTimeout(hideMentions, 150));
+  cmd.addEventListener('keydown', e => {
+    const open = !$('mentions').hidden && mentionState.items.length;
+    if (open && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); const n = mentionState.items.length; mentionState.sel = (mentionState.sel + (e.key === 'ArrowDown' ? 1 : n - 1)) % n; drawMentions(); return; }
+    if (open && (e.key === 'Enter' || e.key === 'Tab')) { e.preventDefault(); pickMention(mentionState.items[mentionState.sel].id); return; }
+    if (e.key === 'Escape') { hideMentions(); if (!open) { cmd.value = ''; ui.q = ''; renderRoster(); } return; }
+    if (e.key === 'Enter') { const first = visibleClients()[0]; if (first && ui.q.trim()) { e.preventDefault(); openClient(first.id); } }
+  });
+  $('person').addEventListener('change', e => { ui.person = e.target.value; renderRoster(); });
+}
+
+document.addEventListener('click', async e => {
+  const t = e.target.closest('button, a[data-open]'); if (!t) return;
+  if (t.dataset.auth) { authMode = t.dataset.auth; render(); return; }
+  if (t.dataset.open) { openClient(t.dataset.open); return; }
+  if (t.dataset.mention) { pickMention(t.dataset.mention); return; }
+  if (t.dataset.f) { ui.filter = t.dataset.f; renderFilters(); renderRoster(); return; }
+  if (t.dataset.smart !== undefined) { ui.smart = ui.smart === t.dataset.smart ? '' : t.dataset.smart; renderSmart(); renderRoster(); return; }
+  if (t.dataset.logkind) { ui.logKind = t.dataset.logkind; renderPanel(); return; }
+  if (t.dataset.copy !== undefined) { try { await navigator.clipboard.writeText(t.dataset.copy); toast('Copied'); } catch { toast('Copy blocked. Select the text instead.'); } return; }
+  if (t.dataset.skip) {
+    const c = state.clients.get(ui.openId), k = t.dataset.skip;
+    try { await setCheck(ui.openId, k, (c.checklist || {})[k] === 'na' ? null : 'na'); } catch (er) { toast(friendlyError(er)); }
+    return;
+  }
+  if (t.dataset.delnote) {
+    const { error } = await sb.from('client_notes').delete().eq('id', t.dataset.delnote);
+    if (error) toast(friendlyError(error)); else { toast('Note removed'); loadNotes(ui.openId); }
+    return;
+  }
+  if (t.dataset.staffActive) {
+    const s = staffById(t.dataset.staffActive); if (!s) return;
+    const { error } = await sb.from('staff').update({ active: !s.active }).eq('id', s.id);
+    if (error) return toast(friendlyError(error));
+    await loadStaff(); renderTeamPage(); toast(`${s.name || s.email} ${s.active ? 'deactivated' : 'reactivated'}`);
+    return;
+  }
+  const act = t.dataset.act; if (!act) return;
+  if (act === 'logout') return logout();
+  if (act === 'new') return openForm(null);
+  if (act === 'edit') return openForm(ui.openId);
+  if (act === 'cancel') return closeForm();
+  if (act === 'close') return closePanel();
+  if (act === 'backup') return downloadBackup();
+  if (act === 'focusnote') return $('noteText')?.focus();
+  if (act === 'copyfile') { try { await navigator.clipboard.writeText(fileText(state.clients.get(ui.openId))); toast('Summary copied'); } catch { toast('Copy blocked.'); } return; }
+  if (act === 'addnote') {
+    const ta = $('noteText'), v = ta.value.trim(); if (!v) return ta.focus();
+    ui.noteKind = $('noteKind')?.value || 'note';
+    t.disabled = true;
+    try { await addNote(ui.openId, v, ui.noteKind); ta.value = ''; toast('Added to log'); } catch (er) { toast(friendlyError(er)); }
+    t.disabled = false;
+    return;
+  }
+  if (act === 'del' || act === 'purge') { ui.confirmDel = true; return renderPanel(); }
+  if (act === 'delno') { ui.confirmDel = false; return renderPanel(); }
+  if (act === 'delyes' || act === 'restore') {
+    const id = ui.openId, name = state.clients.get(id)?.name;
+    try {
+      await updateClient(id, { deleted_at: act === 'delyes' ? new Date().toISOString() : null });
+      if (act === 'delyes') { ui.openId = null; toast(`${name} moved to Deleted`); } else { ui.filter = 'all'; toast(`${name} restored`); }
+      ui.confirmDel = false; refreshClientsPage();
+    } catch (er) { toast(friendlyError(er)); }
+    return;
+  }
+  if (act === 'purgeyes') {
+    const id = ui.openId, name = state.clients.get(id)?.name;
+    const { error } = await sb.from('clients').delete().eq('id', id);
+    if (error) return toast(friendlyError(error));
+    state.clients.delete(id); ui.openId = null; ui.confirmDel = false; refreshClientsPage(); toast(`${name} erased`);
+  }
+});
+document.addEventListener('change', async e => {
+  const t = e.target;
+  if (t.dataset?.check) {
+    t.disabled = true;
+    try { await setCheck(ui.openId, t.dataset.check, t.checked ? 'done' : null); } catch (er) { toast(friendlyError(er)); t.checked = !t.checked; t.disabled = false; }
+    return;
+  }
+  if (t.dataset?.staffRole) {
+    const { error } = await sb.from('staff').update({ role: t.value }).eq('id', t.dataset.staffRole);
+    if (error) { toast(friendlyError(error)); await loadStaff(); return renderTeamPage(); }
+    await loadStaff(); toast('Role updated');
+  }
+});
+$('overlay').addEventListener('click', e => { if (e.target === $('overlay')) closeForm(); });
+document.addEventListener('keydown', e => {
+  const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '');
+  if (e.key === '/' && !typing && $('cmd')) { e.preventDefault(); $('cmd').focus(); }
+  if (e.key === 'Escape') { if (!$('overlay').hidden) closeForm(); else if (ui.openId && !typing) closePanel(); }
+});
+window.addEventListener('hashchange', () => { closeForm(); render(); });
+
+/* -------------------- BOOT -------------------- */
+(async () => {
+  render();
+  if (!sb) return;
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') { authMode = 'recovery'; render(); return; }
+    if (event === 'SIGNED_OUT') { state = emptyState(); render(); }
+  });
+  const { data } = await sb.auth.getSession();
+  if (data?.session?.user && authMode !== 'recovery') await afterAuth(data.session.user);
+  else render();
+})();
+
+</script>
+</body>
+</html>
